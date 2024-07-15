@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Issues Log{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Issues Log</h1>
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="moduleDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Module: {{ module_name }}
+        </button>
+        <div class="dropdown-menu" aria-labelledby="moduleDropdown">
+            <a class="dropdown-item" href="{{ url_for('issues_log') }}">All Modules</a>
+            <!-- Add dynamic module options here -->
+            <a class="dropdown-item" href="{{ url_for('issues_log', module='Module A') }}">Module A</a>
+            <a class="dropdown-item" href="{{ url_for('issues_log', module='Module B') }}">Module B</a>
+            <a class="dropdown-item" href="{{ url_for('issues_log', module='Module C') }}">Module C</a>
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <h3>Issues:</h3>
+        <ul class="list-group">
+            {% for issue in issues %}
+            <li class="list-group-item">{{ issue.issue }}</li>
+            {% endfor %}
+            {% if issues|length == 0 %}
+            <li class="list-group-item">No issues found.</li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

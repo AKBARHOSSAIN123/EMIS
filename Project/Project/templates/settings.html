@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Settings</h1>
+
+    <form id="settingsForm">
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+        </div>
+        <div class="form-check">
+            <input type="checkbox" id="notifications" name="notifications" class="form-check-input">
+            <label for="notifications" class="form-check-label">Receive notifications</label>
+        </div>
+        <!-- Add more settings fields as needed -->
+
+        <button type="submit" class="btn btn-primary mt-3">Save Settings</button>
+    </form>
+</div>
+
+<script>
+    // Example: Fetch initial settings or set defaults
+    var settings = {
+        username: 'User123',
+        email: 'user@example.com',
+        notifications: true
+        // Add more settings here
+    };
+
+    // Initialize form with fetched or default settings
+    document.getElementById('username').value = settings.username;
+    document.getElementById('email').value = settings.email;
+    document.getElementById('notifications').checked = settings.notifications;
+
+    // Handle form submission
+    document.getElementById('settingsForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent form submission
+
+        // Update settings object with form values
+        settings.email = document.getElementById('email').value;
+        settings.notifications = document.getElementById('notifications').checked;
+
+        // Save settings to local storage
+        localStorage.setItem('userSettings', JSON.stringify(settings));
+
+        // Optional: Provide feedback to user
+        alert('Settings saved successfully!');
+    });
+</script>
+{% endblock %}

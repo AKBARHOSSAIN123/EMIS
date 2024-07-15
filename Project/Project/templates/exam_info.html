@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Exam Information</h1>
+    <p>Module: {{ exam_data.module_name }}</p>
+    <p>Number of Students: {{ exam_data.num_students }}</p>
+
+    <div class="progress mb-3" style="height: 30px;">
+        <div id="examProgressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+
+    <div class="timer" id="countdownStart">
+        <!-- Countdown to exam start time will be inserted here -->
+    </div>
+    <div class="timer" id="countdownEnd" style="display: none;">
+        <!-- Countdown during exam time will be inserted here -->
+    </div>
+    <div class="alert" id="alertMessage">
+        <!-- Dynamic alert message will be inserted here -->
+    </div>
+    <div class="alert-icon" id="alertIcon">
+        <!-- Dynamic alert icon will be inserted here -->
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='alerts.js') }}"></script>
+<script src="{{ url_for('static', filename='countdown.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var alertMessage = document.getElementById('alertMessage');
+        var alertIcon = document.getElementById('alertIcon');
+        var countdownStart = document.getElementById('countdownStart');
+        var countdownEnd = document.getElementById('countdownEnd');
+        var examProgressBar = document.getElementById('examProgressBar');
+        var now = new Date().getTime();
+        var startDateTime = new Date('{{ exam_data.start_time }}').getTime();
+        var endDateTime = new Date('{{ exam_data.end_time }}').getTime();
+        var totalExamTime = endDateTime - startDateTime;
+        var timeRemaining = startDateTime - now;
+
+        var timerInterval = setInterval(function() {
+            now = new Date().getTime();
+
+            if (now < startDateTime) {
+                // Countdown to exam start
+                timeRemaining = startDateTime - now;
+                updateTimer(countdownStart, timeRemaining);
+                countdownStart.style.display = 'block';
+                countdownEnd.style.display = 'none';
+
+                // Progress bar for time until exam starts
+                var progressPercent = ((totalExamTime - timeRemaining) / totalExamTime) * 100;
+                examProgressBar.style.width = progressPercent + '%';
+                examProgressBar.setAttribute('aria-valuenow', progressPercent);
+
+                // Before exam starts
+                alertMessage.innerHTML = 'Exam has not started yet.';
+                alertIcon.innerHTML = '<i class="fas fa-info-circle"></i>';
+                alertIcon.style.color = 'blue';
+            } else if (now >= startDateTime && now < endDateTime) {
+                // Countdown during exam
+                timeRemaining = endDateTime - now;
+                updateTimer(countdownEnd, timeRemaining);
+                countdownStart.style.display = 'none';
+                countdownEnd.style.display = 'block';
+
+                // Progress bar for time during exam
+                examProgressBar.style.width = '100%';
+                examProgressBar.setAttribute('aria-valuenow', 100);
+
+                // During exam
+                var currentMinute = new Date().getMinutes();
+                if (prohibitTimes.includes(currentMinute)) {
+                    alertMessage.innerHTML = 'You cannot leave the room right now.';
+                    alertIcon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+                    alertIcon.style.color = 'red';
+                } else if (allowTimes.includes(currentMinute)) {
+                    alertMessage.innerHTML = 'You are allowed to leave the room.';
+                    alertIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+                    alertIcon.style.color = 'green';
+                } else {
+                    alertMessage.innerHTML = 'No specific alerts at the moment.';
+                    alertIcon.innerHTML = '<i class="fas fa-info-circle"></i>';
+                    alertIcon.style.color = 'blue';
+                }
+            } else {
+                // Exam ended
+                clearInterval(timerInterval);
+                countdownStart.style.display = 'none';
+                countdownEnd.style.display = 'none';
+
+                examProgressBar.style.width = '100%';
+                examProgressBar.setAttribute('aria-valuenow', 100);
+
+                alertMessage.innerHTML = 'Exam has ended.';
+                alertIcon.innerHTML = '<i class="fas fa-info-circle"></i>';
+                alertIcon.style.color = 'blue';
+            }
+        }, 1000);
+
+        function updateTimer(element, remainingTime) {
+            var seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+            var minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+            var hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+            element.innerHTML = 'Time Remaining: ' + hours + ':' + minutes + ':' + seconds;
+        }
+    });
+</script>
+{% endblock %}
