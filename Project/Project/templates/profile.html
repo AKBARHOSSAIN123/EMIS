@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Profile</h1>
+    <p>Update your profile information here.</p>
+    <form method="post" action="/profile">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" value="{{ user_data.username }}" readonly>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" value="{{ user_data.email }}">
+        <button type="submit">Update Profile</button>
+    </form>
+</div>
+{% endblock %}
